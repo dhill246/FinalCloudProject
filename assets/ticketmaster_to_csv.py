@@ -9,7 +9,7 @@ from awsglue.utils import getResolvedOptions
 from botocore.exceptions import ClientError
 import sys
 from io import StringIO
-import time
+from time import sleep
 
 # Get bucket argument from stack file
 job_args = getResolvedOptions(sys.argv, ["my_bucket"])
@@ -80,7 +80,7 @@ columns = {"Name": [],
 while total_pages is None or current_page < total_pages:
     # Construct the URL with current page and page size
     url = f'{base_url}countryCode={country_code}&apikey={api_key}&size={page_size}&page={current_page}'
-    time.sleep(0.2)
+    sleep(0.2)
 
     
     # Make GET request to the API
@@ -109,10 +109,10 @@ while total_pages is None or current_page < total_pages:
             subcategory = event.get('classifications', [{}])[0].get('subGenre', {}).get('name', 'N/A')
             columns['SubCategory'].append(subcategory)
             
-            max = float(event.get('priceRanges', [{}])[0].get('max', 0.0))
+            max = event.get('priceRanges', [{}])[0].get('max', 'N/A')
             columns['Max'].append(max)
 
-            min = float(event.get('priceRanges', [{}])[0].get('min', 0.0))
+            min = event.get('priceRanges', [{}])[0].get('min', 'N/A')
             columns['Min'].append(min)
 
             currency = event.get('priceRanges', [{}])[0].get('currency', 'N/A')
@@ -124,7 +124,7 @@ while total_pages is None or current_page < total_pages:
             id = event.get('id', 'N/A')
             columns['ID'].append(id)
 
-            venues = event.get('venues', [{}])[0].get('name', 'N/A')
+            venues = event.get("_embedded", {}).get('venues', [{}])[0].get('name', 'N/A')
             columns["Venues"].append(venues)
             
             start_date_time = event.get('sales', {}).get('public', {}).get('startDateTime', None)

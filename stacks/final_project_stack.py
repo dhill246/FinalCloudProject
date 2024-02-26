@@ -24,6 +24,7 @@ class FinalProjectAnalysisStack(cdk.Stack):
             resources=["arn:aws:secretsmanager:us-west-2:943686807189:secret:finalproject/daniel/ticketmaster-Gu2UO4"]
         )
 
+        # Attach secrets manager to glue role for reading from AWS Secrets Manager
         glue_role.add_to_policy(secrets_manager_policy)
 
         # Initialize bucket for dumping the data once it is extracted
