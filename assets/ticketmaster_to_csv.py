@@ -3,14 +3,13 @@ import requests
 from datetime import datetime
 import numpy as np
 import s3fs
+import json
 import pandas as pd
 from awsglue.utils import getResolvedOptions
-# from pyspark.context import SparkContext
-# from awsglue.context import GlueContext
-# from awsglue.dynamicframe import DynamicFrame
 from botocore.exceptions import ClientError
 import sys
 from io import StringIO
+import time
 
 # Get bucket argument from stack file
 job_args = getResolvedOptions(sys.argv, ["my_bucket"])
@@ -40,7 +39,9 @@ def get_secret():
 
     return secret
 
-api_key = get_secret()
+secret_string = get_secret()
+parsed_json = json.loads(secret_string)
+api_key = parsed_json["TICKETMASTER_API_KEY"]
 
 # Inititalize boto3 client
 s3 = boto3.client("s3")
@@ -79,12 +80,14 @@ columns = {"Name": [],
 while total_pages is None or current_page < total_pages:
     # Construct the URL with current page and page size
     url = f'{base_url}countryCode={country_code}&apikey={api_key}&size={page_size}&page={current_page}'
+    time.sleep(0.2)
+
     
     # Make GET request to the API
     response = requests.get(url)
     
     # Handle the response
-    if 1:
+    if response.status_code == 200:
         data = response.json()
         events = data['_embedded']['events']
 
@@ -150,9 +153,6 @@ while total_pages is None or current_page < total_pages:
             
             description = event.get('info', 'N/A')
             columns['Description'].append(description)
-
-            event.get('', '')
-            columns['']
         
         # Update total_pages after the first request
         if total_pages is None:
@@ -161,37 +161,21 @@ while total_pages is None or current_page < total_pages:
         # Increment the current page to fetch next page in the next iteration
         current_page += 1
     else:
-        print('Error:', response.status_code)
-        print(response.text)
+        error_code = response.status_code
+        text = response.text
         break
 
 # Convert dictionary to pandas dataframe
 my_data_frame = pd.DataFrame(columns)
+my_info = {"error_code": error_code,
+           "error_text": text,
+            "current_page": current_page,
+            "DataFrame_Length": len(my_data_frame)
+}
+
+json_string = json.dumps(my_info).encode('utf-8')
+
 
 # Write to S3
 my_data_frame.to_csv(f"s3://{job_args['my_bucket']}/ticketmaster.csv")
-
-# Write csv to string for loading
-# csv_buffer = StringIO()
-# my_data_frame.to_csv(csv_buffer, index=False)
-# s3.put_object(Bucket=job_args["my_bucket"], Key="ticketmaster.csv", Body=csv_buffer.getvalue(), ContentType="text\csv")
-
-# Put object in S3
-# sc = SparkContext.getOrCreate()
-# glueContext = GlueContext(sc)
-# spark = glueContext.spark_session
-
-# rows = zip(*columns.values())
-# df = spark.createDataFrame(rows, schema=list(columns.keys()))
-
-# dynamic_frame = DynamicFrame.fromDF(df, glueContext, "my_dynamic_frame")
-
-# glueContext.write_dynamic_frame.from_options(
-#     frame=dynamic_frame,
-#     connection_type="s3",
-#     connection_options={"path": f"s3://{job_args['my_bucket']}/ticketmaster2.csv"},
-#     format="csv",
-#     format_options={
-#         "quoteChar": -1,
-#     },
-# )
+s3.put_object(Bucket=job_args['my_bucket'], Key="info.json", Body=json_string, ContentType='application/json')

@@ -64,7 +64,7 @@ class FinalProjectAnalysisStack(cdk.Stack):
                                                 command=glue.CfnJob.JobCommandProperty(
                                                     name="pythonshell",
                                                     python_version="3.9",
-                                                    script_location=f"s3://{scripts_bucket.bucket_name}/assets/ticketmaster_2.py"
+                                                    script_location=f"s3://{scripts_bucket.bucket_name}/assets/ticketmaster_to_csv.py"
                                                 ),
                                                 role=glue_role.role_arn,
                                                 glue_version="3.0",
