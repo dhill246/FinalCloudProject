@@ -2,15 +2,18 @@ import boto3
 import requests
 from datetime import datetime
 import numpy as np
-import pandas as pd
 import s3fs
-# from awsglue.utils import getResolvedOptions
+import pandas as pd
+from awsglue.utils import getResolvedOptions
+# from pyspark.context import SparkContext
+# from awsglue.context import GlueContext
+# from awsglue.dynamicframe import DynamicFrame
 from botocore.exceptions import ClientError
 import sys
 from io import StringIO
 
 # Get bucket argument from stack file
-# job_args = getResolvedOptions(sys.argv, ["my_bucket"])
+job_args = getResolvedOptions(sys.argv, ["my_bucket"])
 
 # fetch API key
 def get_secret():
@@ -37,7 +40,7 @@ def get_secret():
 
     return secret
 
-# api_key = get_secret()
+api_key = get_secret()
 
 # Inititalize boto3 client
 s3 = boto3.client("s3")
@@ -66,7 +69,11 @@ columns = {"Name": [],
             "State": [], 
             "Latitude": [],
             "Longitude": [],
-            "Description": []}
+            "Description": [],
+            "Currency": [],
+            "URL": [],
+            "ID": [],
+            "Venues": []}
 
 # Loop through pages of results
 while total_pages is None or current_page < total_pages:
@@ -77,7 +84,7 @@ while total_pages is None or current_page < total_pages:
     response = requests.get(url)
     
     # Handle the response
-    if response.status_code == 200:
+    if 1:
         data = response.json()
         events = data['_embedded']['events']
 
@@ -104,6 +111,18 @@ while total_pages is None or current_page < total_pages:
 
             min = float(event.get('priceRanges', [{}])[0].get('min', 0.0))
             columns['Min'].append(min)
+
+            currency = event.get('priceRanges', [{}])[0].get('currency', 'N/A')
+            columns['Currency'].append(currency)
+
+            url = event.get('url', 'N/A')
+            columns['URL'].append(url)
+
+            id = event.get('id', 'N/A')
+            columns['ID'].append(id)
+
+            venues = event.get('venues', [{}])[0].get('name', 'N/A')
+            columns["Venues"].append(venues)
             
             start_date_time = event.get('sales', {}).get('public', {}).get('startDateTime', None)
             start_date_time = datetime.strptime(start_date_time, "%Y-%m-%dT%H:%M:%SZ") if start_date_time is not None else None
@@ -131,6 +150,9 @@ while total_pages is None or current_page < total_pages:
             
             description = event.get('info', 'N/A')
             columns['Description'].append(description)
+
+            event.get('', '')
+            columns['']
         
         # Update total_pages after the first request
         if total_pages is None:
@@ -141,14 +163,35 @@ while total_pages is None or current_page < total_pages:
     else:
         print('Error:', response.status_code)
         print(response.text)
-        break  # Exit the loop in case of an error
+        break
 
 # Convert dictionary to pandas dataframe
 my_data_frame = pd.DataFrame(columns)
 
+# Write to S3
+my_data_frame.to_csv(f"s3://{job_args['my_bucket']}/ticketmaster.csv")
+
 # Write csv to string for loading
-csv_buffer = StringIO()
-my_data_frame.to_csv(csv_buffer, index=False)
+# csv_buffer = StringIO()
+# my_data_frame.to_csv(csv_buffer, index=False)
+# s3.put_object(Bucket=job_args["my_bucket"], Key="ticketmaster.csv", Body=csv_buffer.getvalue(), ContentType="text\csv")
 
 # Put object in S3
-s3.put_object(Bucket=job_args["my_bucket"], Key="ticketmaster.csv", Body=csv_buffer.getvalue())
+# sc = SparkContext.getOrCreate()
+# glueContext = GlueContext(sc)
+# spark = glueContext.spark_session
+
+# rows = zip(*columns.values())
+# df = spark.createDataFrame(rows, schema=list(columns.keys()))
+
+# dynamic_frame = DynamicFrame.fromDF(df, glueContext, "my_dynamic_frame")
+
+# glueContext.write_dynamic_frame.from_options(
+#     frame=dynamic_frame,
+#     connection_type="s3",
+#     connection_options={"path": f"s3://{job_args['my_bucket']}/ticketmaster2.csv"},
+#     format="csv",
+#     format_options={
+#         "quoteChar": -1,
+#     },
+# )
