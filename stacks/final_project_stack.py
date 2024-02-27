@@ -76,10 +76,11 @@ class FinalProjectAnalysisStack(cdk.Stack):
                                                 })
         
         # Define trigger to run the above job
-        start_trigger = glue.CfnTrigger(self, "daniel_trigger",
-                                        name="daniel_trigger",
+        start_trigger = glue.CfnTrigger(self, "daniel_trigger2",
+                                        name="daniel_trigger2",
                                         actions=[glue.CfnTrigger.ActionProperty(job_name=ticketmaster_download_job.name)],
-                                        type="ON_DEMAND",
+                                        type="SCHEDULED",
+                                        schedule="cron(15 4 * * ? *)",
                                         workflow_name=my_workflow.name)
 
 

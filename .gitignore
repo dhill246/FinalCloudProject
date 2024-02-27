@@ -9,6 +9,11 @@ __pycache__
 # CDK asset staging directory
 .cdk.staging
 cdk.out
+
+
 assets/test.ipynb
 assets/ticketmaster_2.py
 assets/output.csv
+
+
+AWSCLIV2.pkg

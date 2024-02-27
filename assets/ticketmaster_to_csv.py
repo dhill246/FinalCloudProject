@@ -177,5 +177,5 @@ json_string = json.dumps(my_info).encode('utf-8')
 
 
 # Write to S3
-my_data_frame.to_csv(f"s3://{job_args['my_bucket']}/ticketmaster.csv")
+my_data_frame.to_csv(f"s3://{job_args['my_bucket']}/ticketmaster.csv", index=False)
 s3.put_object(Bucket=job_args['my_bucket'], Key="info.json", Body=json_string, ContentType='application/json')
