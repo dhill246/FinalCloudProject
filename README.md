@@ -1,3 +1,8 @@
+Daniel Hill
+Alexa Hildebrand
+Eva Murdock
+Fernando Fonseca
+Toby Guenthner
 
 # Welcome to your CDK Python project!
 
