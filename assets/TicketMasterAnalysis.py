@@ -13,8 +13,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from io import BytesIO
 
-
-
 s3 = boto3.client('s3')
 bucket ='finalprojectstack-finaldataca7db91c-jwd9cyzim57x' 
 # source = "s3://finalprojectstack-finaldataca7db91c-jwd9cyzim57x/ticketmaster.csv"
