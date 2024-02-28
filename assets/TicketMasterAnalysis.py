@@ -17,7 +17,8 @@ from io import BytesIO
 
 s3 = boto3.client('s3')
 bucket ='finalprojectstack-finaldataca7db91c-jwd9cyzim57x' 
-source = "s3://finalprojectstack-finaldataca7db91c-jwd9cyzim57x/ticketmaster.csv"
+# source = "s3://finalprojectstack-finaldataca7db91c-jwd9cyzim57x/ticketmaster.csv"
+source = "ticketmaster_og.csv"
 df= pd.read_csv(source)
 
 #map 
@@ -40,7 +41,6 @@ def color_by_category(category):
         'Miscellaneous': 'gray'
     }
     return category_colors.get(category, 'gray')
-
 
 
 
@@ -74,8 +74,7 @@ bucket_name = 'finalprojectstack-finaldataca7db91c-jwd9cyzim57x'
 s3_file_key = 'your_map.html'
 
 # Using upload_file which is meant for file paths
-s3.upload_file(temp_map_path, bucket_name, s3_file_key)
-
+# s3.upload_file(temp_map_path, bucket_name, s3_file_key)
 
 #process
 #df = df.drop(columns=["Unnamed: 0"])
@@ -106,15 +105,16 @@ plt.xticks(rotation=45)  # Rotate day names for better readability
 plt.legend()
 plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
 
-plot_buffer = BytesIO()
-plt.savefig(plot_buffer, format='png')
-plot_buffer.seek(0)
-s3.upload_fileobj(plot_buffer,'finalprojectstack-finaldataca7db91c-jwd9cyzim57x', 'bball_min.png')
+plt.savefig('pictures/bball_min.png')
+# plot_buffer = BytesIO()
+# plt.savefig(plot_buffer, format='png')
+# plot_buffer.seek(0)
+# s3.upload_fileobj(plot_buffer,'finalprojectstack-finaldataca7db91c-jwd9cyzim57x', 'bball_min.png')
 
 
 # After uploading, you can safely close the plot and buffer
-plt.close()
-plot_buffer.close()
+# plt.close()
+# plot_buffer.close()
 
 #basketball max by day
 basketball = df[df["Category"] == "Basketball"]
@@ -139,15 +139,18 @@ plt.xticks(rotation=45)  # Rotate day names for better readability
 plt.legend()
 plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
 
-plot_buffer = BytesIO()
-plt.savefig(plot_buffer, format='png')
-plot_buffer.seek(0)
-s3.upload_fileobj(plot_buffer,'finalprojectstack-finaldataca7db91c-jwd9cyzim57x', 'bball_max.png')
+plt.subplots_adjust(right=0.85)
+
+plt.savefig('pictures/bball_max.png')
+# plot_buffer = BytesIO()
+# plt.savefig(plot_buffer, format='png')
+# plot_buffer.seek(0)
+# s3.upload_fileobj(plot_buffer,'finalprojectstack-finaldataca7db91c-jwd9cyzim57x', 'bball_max.png')
 
 
-# After uploading, you can safely close the plot and buffer
-plt.close()
-plot_buffer.close()
+# # After uploading, you can safely close the plot and buffer
+# plt.close()
+# plot_buffer.close()
 
 
 #baseball min by day
@@ -173,15 +176,16 @@ plt.xticks(rotation=45)  # Rotate day names for better readability
 plt.legend()
 plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
 
-plot_buffer = BytesIO()
-plt.savefig(plot_buffer, format='png')
-plot_buffer.seek(0)
-s3.upload_fileobj(plot_buffer,'finalprojectstack-finaldataca7db91c-jwd9cyzim57x', 'baseball_min.png')
+plt.savefig('pictures/baseball_min.png')
+# plot_buffer = BytesIO()
+# plt.savefig(plot_buffer, format='png')
+# plot_buffer.seek(0)
+# s3.upload_fileobj(plot_buffer,'finalprojectstack-finaldataca7db91c-jwd9cyzim57x', 'baseball_min.png')
 
 
-# After uploading, you can safely close the plot and buffer
-plt.close()
-plot_buffer.close()
+# # After uploading, you can safely close the plot and buffer
+# plt.close()
+# plot_buffer.close()
 
 
 #baseball max by day
@@ -208,15 +212,16 @@ plt.xticks(rotation=45)  # Rotate day names for better readability
 plt.legend()
 plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
 
-plot_buffer = BytesIO()
-plt.savefig(plot_buffer, format='png')
-plot_buffer.seek(0)
-s3.upload_fileobj(plot_buffer,'finalprojectstack-finaldataca7db91c-jwd9cyzim57x', 'baseball_max.png')
+plt.savefig('pictures/baseball_max.png')
+# plot_buffer = BytesIO()
+# plt.savefig(plot_buffer, format='png')
+# plot_buffer.seek(0)
+# s3.upload_fileobj(plot_buffer,'finalprojectstack-finaldataca7db91c-jwd9cyzim57x', 'baseball_max.png')
 
 
-# After uploading, you can safely close the plot and buffer
-plt.close()
-plot_buffer.close()
+# # After uploading, you can safely close the plot and buffer
+# plt.close()
+# plot_buffer.close()
 
 #overall min/max by day
 average_min_price_by_day = df.groupby('Weekday')['Min'].mean().reindex(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
@@ -227,7 +232,7 @@ average_prices_by_day = pd.DataFrame({
     'Average Max Price': average_max_price_by_day
 })
 
-fig, ax1 = plt.subplots(figsize=(12, 7))
+fig, ax1 = plt.subplots(figsize=(10, 6))
 
 color_min = 'tab:blue'
 ax1.set_xlabel('Day of the Week')
@@ -249,17 +254,19 @@ fig.tight_layout()
 plt.legend([min_line, max_line], ['Average Min Price', 'Average Max Price'], loc='upper left')
 
 plt.title('Average Min and Max Price by Day of the Week')
+plt.subplots_adjust(top=0.85)
 
-plot_buffer = BytesIO()
-plt.savefig(plot_buffer, format='png')
-plot_buffer.seek(0)
-s3.upload_fileobj(plot_buffer,'finalprojectstack-finaldataca7db91c-jwd9cyzim57x', 'overall.png')
+plt.savefig('pictures/overall.png')
+
+# plot_buffer = BytesIO()
+# plt.savefig(plot_buffer, format='png')
+# plot_buffer.seek(0)
+# s3.upload_fileobj(plot_buffer,'finalprojectstack-finaldataca7db91c-jwd9cyzim57x', 'overall.png')
 
 
-# After uploading, you can safely close the plot and buffer
-plt.close()
-plot_buffer.close()
-
+# # After uploading, you can safely close the plot and buffer
+# plt.close()
+# plot_buffer.close()
 
 #max price by day of week and category
 top_categories = df['Category'].value_counts().head(7).index
@@ -307,15 +314,17 @@ plt.legend(title='Category', bbox_to_anchor=(1.05, 1), loc='upper left')
 
 plt.tight_layout()  # Adjust the layout to make room for the legend
 
-plot_buffer = BytesIO()
-plt.savefig(plot_buffer, format='png')
-plot_buffer.seek(0)
-s3.upload_fileobj(plot_buffer,'finalprojectstack-finaldataca7db91c-jwd9cyzim57x', 'maxbyday.png')
+plt.savefig('pictures/maxbyday.png')
+
+# plot_buffer = BytesIO()
+# plt.savefig(plot_buffer, format='png')
+# plot_buffer.seek(0)
+# s3.upload_fileobj(plot_buffer,'finalprojectstack-finaldataca7db91c-jwd9cyzim57x', 'maxbyday.png')
 
 
-# After uploading, you can safely close the plot and buffer
-plt.close()
-plot_buffer.close()
+# # After uploading, you can safely close the plot and buffer
+# plt.close()
+# plot_buffer.close()
 
 
 #max price with grey
@@ -341,15 +350,18 @@ plt.legend(title='Category', bbox_to_anchor=(1.05, 1), loc='upper left')
 
 plt.tight_layout()  # Adjust the layout to make room for the legend
 
-plot_buffer = BytesIO()
-plt.savefig(plot_buffer, format='png')
-plot_buffer.seek(0)
-s3.upload_fileobj(plot_buffer,'finalprojectstack-finaldataca7db91c-jwd9cyzim57x', 'maxbydaygrey.png')
+plt.savefig('pictures/maxbydaygrey.png')
 
 
-# After uploading, you can safely close the plot and buffer
-plt.close()
-plot_buffer.close()
+# plot_buffer = BytesIO()
+# plt.savefig(plot_buffer, format='png')
+# plot_buffer.seek(0)
+# s3.upload_fileobj(plot_buffer,'finalprojectstack-finaldataca7db91c-jwd9cyzim57x', 'maxbydaygrey.png')
+
+
+# # After uploading, you can safely close the plot and buffer
+# plt.close()
+# plot_buffer.close()
 
 
 #no basketball
@@ -394,15 +406,17 @@ plt.legend(title='Category', bbox_to_anchor=(1.05, 1), loc='upper left')
 plt.tight_layout()  # Adjust the layout to make room for the legend
 plt.show()
 
-plot_buffer = BytesIO()
-plt.savefig(plot_buffer, format='png')
-plot_buffer.seek(0)
-s3.upload_fileobj(plot_buffer,'finalprojectstack-finaldataca7db91c-jwd9cyzim57x', 'nobball.png')
+plt.savefig('pictures/nobball.png')
+
+# plot_buffer = BytesIO()
+# plt.savefig(plot_buffer, format='png')
+# plot_buffer.seek(0)
+# s3.upload_fileobj(plot_buffer,'finalprojectstack-finaldataca7db91c-jwd9cyzim57x', 'nobball.png')
 
 
-# After uploading, you can safely close the plot and buffer
-plt.close()
-plot_buffer.close()
+# # After uploading, you can safely close the plot and buffer
+# plt.close()
+# plot_buffer.close()
 
 #add bball
 
@@ -428,15 +442,18 @@ plt.legend(title='Category', bbox_to_anchor=(1.05, 1), loc='upper left')
 
 plt.tight_layout()  # Adjust the layout to make room for the legend
 plt.show()
-plot_buffer = BytesIO()
-plt.savefig(plot_buffer, format='png')
-plot_buffer.seek(0)
-s3.upload_fileobj(plot_buffer,'finalprojectstack-finaldataca7db91c-jwd9cyzim57x', 'wbball.png')
+
+plt.savefig('pictures/wbball.png')
+
+# plot_buffer = BytesIO()
+# plt.savefig(plot_buffer, format='png')
+# plot_buffer.seek(0)
+# s3.upload_fileobj(plot_buffer,'finalprojectstack-finaldataca7db91c-jwd9cyzim57x', 'wbball.png')
 
 
-# After uploading, you can safely close the plot and buffer
-plt.close()
-plot_buffer.close()
+# # After uploading, you can safely close the plot and buffer
+# plt.close()
+# plot_buffer.close()
 
 #variance
 category_colors = {
@@ -463,12 +480,14 @@ plt.xlabel('Category')
 plt.ylabel('Max Price Variance')
 plt.xticks(rotation=45)  # Rotate category names for better readability
 
-plot_buffer = BytesIO()
-plt.savefig(plot_buffer, format='png')
-plot_buffer.seek(0)
-s3.upload_fileobj(plot_buffer,'finalprojectstack-finaldataca7db91c-jwd9cyzim57x', 'variance.png')
+plt.savefig('pictures/variance.png')
+
+# plot_buffer = BytesIO()
+# plt.savefig(plot_buffer, format='png')
+# plot_buffer.seek(0)
+# s3.upload_fileobj(plot_buffer,'finalprojectstack-finaldataca7db91c-jwd9cyzim57x', 'variance.png')
 
 
-# After uploading, you can safely close the plot and buffer
-plt.close()
-plot_buffer.close()
+# # After uploading, you can safely close the plot and buffer
+# plt.close()
+# plot_buffer.close()
