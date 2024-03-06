@@ -6,19 +6,17 @@ __pycache__
 *.egg-info
 .env
 
-assets/pictures
-assets/test.ipynb
-assets/test2.ipynb
-assets/ticketmaster_2.py
-assets/output.csv
-assets/ticketmaster_to_csv.py
-assets/ticketmaster.csv
-assets/ticketmaster2.csv
-assets/ticketmaster_og.csv
-
 # CDK asset staging directory
 .cdk.staging
 cdk.out
+
+
+assets/test.ipynb
+assets/test2.ipynb
+assets.analysis.ipynb
+assets/ticketmaster_2.py
+assets/output.csv
+
 
 AWSCLIV2.pkg
 

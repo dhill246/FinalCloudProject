@@ -83,9 +83,10 @@ class FinalProjectAnalysisStack(cdk.Stack):
                                         schedule="cron(15 4 * * ? *)",
                                         workflow_name=my_workflow.name)
 
-
-        # Potentially set up analysis trigger? Idk if we need anything else for now
-
+        # Right now the Glue Data Catalog and Crawler aren't doing anything
+        # In the the future if we append more data and the size grows,
+        # we may need to convert filetype from csv to parquet and configure
+        # crawler so we can use Athena instead of S3 Select
         # Configure data catalog
         glue_data_cataloging = glue.CfnDatabase(self, "ticketmaster_db",
                                                 catalog_id=cdk.Aws.ACCOUNT_ID,
