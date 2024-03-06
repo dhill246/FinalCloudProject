@@ -6,7 +6,6 @@ import aws_cdk.aws_glue as glue
 
 
 class FinalProjectAnalysisStack(cdk.Stack):
-
     def __init__(self, scope: cdk.App, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
@@ -75,6 +74,14 @@ class FinalProjectAnalysisStack(cdk.Stack):
                                                     "--my_bucket": data_bucket.bucket_name
                                                 })
         
+        # TODO: Change the architecture above.
+        # First, ticketmaster_download_job will run ticketmaster_to_parquet.py (From fernando) instead of ticketmaster_to_csv.py
+        # Second, dump Parquet files into subset of data bucket called Parquet/ or similar.
+        # Write a new glue script and add a job for combining multiple parquet files together.
+        # Create a second trigger to run the second glue job when a file within DataBucket/Parquet/ gets updated or changed
+        # Right now the glue Database and Crawler simply exist without doing anything, need to enable these to make 
+        # database so we can use Athena for querying and analysis.
+        
         # Define trigger to run the above job
         start_trigger = glue.CfnTrigger(self, "daniel_trigger2",
                                         name="daniel_trigger2",
@@ -83,10 +90,9 @@ class FinalProjectAnalysisStack(cdk.Stack):
                                         schedule="cron(15 4 * * ? *)",
                                         workflow_name=my_workflow.name)
 
-        # Right now the Glue Data Catalog and Crawler aren't doing anything
-        # In the the future if we append more data and the size grows,
-        # we may need to convert filetype from csv to parquet and configure
-        # crawler so we can use Athena instead of S3 Select
+
+        # Potentially set up analysis trigger? Idk if we need anything else for now
+
         # Configure data catalog
         glue_data_cataloging = glue.CfnDatabase(self, "ticketmaster_db",
                                                 catalog_id=cdk.Aws.ACCOUNT_ID,
